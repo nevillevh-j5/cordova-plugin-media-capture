@@ -276,8 +276,9 @@ public class Capture extends CordovaPlugin {
 
             ContentResolver contentResolver = this.cordova.getActivity().getContentResolver();
             ContentValues cv = new ContentValues();
-            cv.put(MediaStore.Images.Media.MIME_TYPE, IMAGE_JPEG);
-            imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
+            String dest = Build.VERSION.SDK_INT >= 29 ? MediaStore.VOLUME_EXTERNAL_PRIMARY:
+                                                        MediaStore.VOLUME_EXTERNAL;
+            imageUri = contentResolver.insert(MediaStore.Images.Media.getContentUri(dest), cv);
             LOG.d(LOG_TAG, "Taking a picture and saving to: " + imageUri.toString());
 
             intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageUri);
@@ -323,7 +324,9 @@ public class Capture extends CordovaPlugin {
                 cordova.getThreadPool().submit(new Runnable() {
                     @Override
                     public void run() {
-                        videoUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+                        String dest = Build.VERSION.SDK_INT >= 29 ? MediaStore.VOLUME_EXTERNAL_PRIMARY:
+                                                                    MediaStore.VOLUME_EXTERNAL;
+                        videoUri = contentResolver.insert(MediaStore.Video.Media.getContentUri(dest), contentValues);
                         File file = webView.getResourceApi().mapUriToFile(videoUri);
                         if (file != null && !file.getParentFile().exists()) {
                             file.getParentFile().mkdirs();
